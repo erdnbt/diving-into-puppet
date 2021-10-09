@@ -2,6 +2,29 @@
 
 ## Puppet components
 
+### What is a resource?
+
+Resources are the single units of a system that you want to manage, such as users, files, services, or packages.
+
+One of Puppet's core concepts is the resource abstraction layer, whereby information about a resource is represented in Puppet code. To view and modify information about resources, run the puppet resource command, which becomes available after you install the agent.
+
+#### Resource syntax
+
+Let’s break down the output into its basic components:
+
+```
+type { 'title':
+  parameter => 'value',
+}
+```
+
+- **Type** — Describes what the resource is. In this case, a file.
+- **Title** — A unique name that Puppet uses internally to identify the resource. In this case, it’s the file path and name, /tmp/test.
+- **Attributes** — A bracketed list of parameter => value pairs that specifies the state of the resource and its relationship to the node. A resource can have many parameter values.
+
+> The content hash
+The content parameter value might not be what you expected for an empty file. When the resource tool interprets a file, it converts the content into an SHA256 hash. Puppet uses this hash to compare the content of the file to what it expects.
+
 - **Resources** : a way of defining a specific unit of configuration. For example a file or a system user would be single resource.
 
 Ex:
@@ -53,6 +76,20 @@ class dev_environment{
 
 ```
 
+## Node classification
+
+When the primary server receives a catalog request from an agent node with a valid certificate, it begins a process called node classification to determine what Puppet code to compile to generate a catalog for the agent. The primary server gets this information from the `site.pp` manifest.
+
+### The site.pp manifest
+
+The site.pp manifest is a file on the Puppet server where you can write node definitions and specify your nodes' desired states.
+
+Node: In the context of Puppet, a node is any system or device in your infrastructure.
+
+Node definition: Defines how the primary server should manage a given system. When an agent contacts the server, the server checks the site.pp manifest for node definitions that match the node name. Node definitions enable you to assign specific configurations to specific nodes.
+
+For this example, working with site.pp is the easiest way to see how node classification works. You can also get node classification info in the PE console.
+
 ### Classification in site.pp
 
 ```
@@ -88,6 +125,14 @@ class foo{
     }
 }
 ```
+
+So far, you’ve explored the file resource type. However, Puppet manages many types of resources, including:
+
+- user
+- service
+- package
+
+Puppet can also manage custom types — for example, types specific to a service or application, such as Apache vhost or MySQL database.
 
 ## Sharing puppet code
 
