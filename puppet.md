@@ -6,7 +6,7 @@
 
 Ex:
 
-```ruby
+```
 file { '/root/README':
     ensure => file,
     content => 'Hello World',
@@ -19,7 +19,7 @@ file { '/root/README':
 
 Ex of a Package Resource:
 
-```ruby
+```
 service { 'crond':
     ensure => running,
     enable => true,
@@ -35,7 +35,7 @@ Built-In Resource Types: https://docs.puppet.com/puppet/latest/type.html
 
 Ex:
 
-```ruby
+```
 class dev_environment{
     user { 'grace':
         ensure => present,
@@ -55,7 +55,7 @@ class dev_environment{
 
 ### Classification in site.pp
 
-```ruby
+```
 node default {
     class { 'dev_environment':
         ensure => present,
@@ -65,7 +65,7 @@ node default {
 
 ### Classification with include keyword
 
-```ruby
+```
 node default {
     include dev_environment
 }
@@ -76,7 +76,7 @@ node 'grace.puppet.vm' {
 
 ### Nested Classes
 
-```ruby
+```
 class foo{
     include dev_environment
     class { 'another_class':
@@ -118,3 +118,19 @@ Manual installation:
 ```
 puppet module install puppet-nginx --version
 ```
+
+## Roles and Profiles
+
+In addition to the modules from the Forge, you'll want to make some of your own modules.
+You can put these inside a directory called site in the root of your control-repo.
+The first two modules we'll create in the site directory are our roles and profiles.
+The roles and profiles pattern is a best practice for keeping your Puppet code organized.
+
+### Profile
+
+Profiles are the building blocks of your configuration. You define a profile as a wrapper for a subset of configuration.
+Profile should be limited as single unit of configuration like the NGINX web server. If you're managing a database, that configuration would go in another profile.
+
+### Role
+
+Roles define the business role of a machine. There should be one role per machine and roles should be made up only of profiles. This keeps your configuration simple and composable. Roles like "That's a production app server", "That's a developer's workstation"
