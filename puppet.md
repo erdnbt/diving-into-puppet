@@ -134,3 +134,76 @@ Profile should be limited as single unit of configuration like the NGINX web ser
 ### Role
 
 Roles define the business role of a machine. There should be one role per machine and roles should be made up only of profiles. This keeps your configuration simple and composable. Roles like "That's a production app server", "That's a developer's workstation"
+
+## Puppet Orchestration
+
+- MCollective
+- Ansible or SSH in a for loop
+- Puppet Bolt
+
+### MCollective
+
+Collective is a tool that's been bundled with Puppet for several years. The name stands for **Marionette Collective** and it's a way of triggering actions on nodes. This could be as simple as triggering a Puppet run or as complex as running sophisticated reports on every node in your infrastructure. MCollective operates on a publish-subscribe model where a single server, generally your Puppet master, maintains a queue such as **ActiveMQ** or **RabbitMQ**. Any other nodes publish and subscribe data to that queue server. This has the advantage of being tolerant of spotty network connections. If a node isn't able to reach the queue, it will still be able to receive any messages published to it once it was able to connect. The major downside is that it's impossible to ensure that a machine has actually received the message.
+
+### Ansible
+
+Ansible is another open source project that overlaps with Puppet functionality. Unlike Puppet, Ansible doesn't require the installation of an agent. It uses SSH to connect to nodes. But Ansible doesn't manage desired state quite as well as Puppet, so many users combine the tools, using Puppet for maintaining desired state and Ansible for orchestration and procedural tasks.
+
+- Agentless
+- Doesn't manage state as well as Puppet
+- Ansible for Orchestration
+- Puppet for a desired state
+
+### SSH
+
+One simple solution for a small infrastructure is to set up SSH keys and use a simple loop to connect to each node and trigger Puppet runs. Since Puppet runs every 30 minutes by default and can manage SSH keys, it's simple to configure this kind of orchestration. This solution isn't very robust but it does have the advantage of simplicity. All you need is a list of all your nodes by host name.
+
+- Works for smaller installations
+- Use Puppet to manage SSH keys
+- Simple
+- Requires a list of nodes in a flat file
+
+```
+for node in 'cat nodes.txt'
+    do ssh $node puppet agent -t
+end
+```
+
+### Bolt
+
+Bolt is the newest orchestration option for Puppet. Like Ansible, it's also agent-less, using SSH on the backend. It's been around for a while but the Puppet community has been a bit slow to fully embrace it. I think partly it's because it's a bit difficult to learn and it doesn't offer a lot of advantages over the other options we just talked about. If it gains more support from the community, it will become a more viable option. The main reason to consider using Bolt is that it's made to integrate with Puppet. For example, module creators can create Bolt tasks that ship with their module. These are ad hoc actions that someone might want to take related to a particular application but that don't fall under the typical Puppet configuration management. The other aspect I find compelling about Bolt is the idea of integrating with PuppetDB.
+
+- Agentless
+- Newest Orchestration option
+- Not widely used yet
+- May become a more viable option in the future
+
+Why use Puppet Bolt
+
+- Tasks in Forge modules
+- Extemporary actions related to the module
+- PuppetDB
+- Intelligently take action across multiple nodes
+- Potentially powerful
+
+### 
+
+When the Puppet agent runs, first it triggers a program called factor to collect details about the system. The agent submits this information to the master. The master takes that information and uses it to look up what code is relevant to that machine. Then the master uses those details to compile what's called a catalog. The catalog doesn't contain any Puppet code, but it's the representation of what specifically needs to happen on that node and in what order. The catalog isn't meant to be human readable, but it's in a form that the Puppet agent can understand. The master responds to the agent's initial request with the catalog. Now the agent takes that catalog and enforces the changes on the node. For example, installing a software package and configuring a user. Finally, the agent generates a report of the Puppet run and submits it to the master.
+
+What's in a report?
+
+- Metadata
+- Status
+- Events
+- Logs
+- Metrics
+
+## Facter
+
+```bash
+facter
+facter system_uptime.uptime
+facter uptime
+# hostname
+facter fqdn
+```
